@@ -2,10 +2,15 @@ package com.example.demo.student;
 
 import com.example.demo.student.exception.BadRequestException;
 import com.example.demo.student.exception.StudentNotFoundException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 
@@ -14,6 +19,18 @@ import java.util.List;
 public class StudentService {
 
     private final StudentRepository studentRepository;
+
+    public Student getStudentByRestTemplate() throws JsonProcessingException {
+        RestTemplate restTemplate = new RestTemplate();;
+        String url = "http://localhost:8002/otherServiceStudent";
+        ResponseEntity<String> forEntity = restTemplate.getForEntity(url, String.class);
+        String jsonBody = forEntity.getBody();
+        ObjectMapper objectMapper = new ObjectMapper();
+//        JsonNode jsonNode = objectMapper.readTree(jsonBody);
+//        String args = jsonNode.get("args").toString();
+        Student student = objectMapper.readValue(jsonBody, Student.class);
+        return student;
+    }
 
     public List<Student> getAllStudents() {
         return studentRepository.findAll();
